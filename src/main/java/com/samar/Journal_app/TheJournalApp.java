@@ -21,6 +21,7 @@ public class TheJournalApp {
     public PlatformTransactionManager transactionManager(MongoDatabaseFactory dbFactory){
         return new MongoTransactionManager(dbFactory);
     }
+
     @Bean
     public RestTemplate restTemplate(){
         return new RestTemplate();
