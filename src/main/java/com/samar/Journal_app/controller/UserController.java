@@ -3,6 +3,7 @@ package com.samar.Journal_app.controller;
 import com.samar.Journal_app.dto.PasswordChangeRequest;
 import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.service.UserService;
+import com.samar.Journal_app.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,15 @@ public class UserController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private WeatherService weatherService;
+
+    @GetMapping
+    public ResponseEntity<?> greeting(Authentication authentication){
+        int temp = weatherService.getFeelsLike("sherghati");
+        return new ResponseEntity<>("Hi "+authentication.getName()+" Today Weather feels like " + temp, HttpStatus.OK);
+    }
 
     @PutMapping("/change-password")
     public ResponseEntity<?> changePassword(Authentication authentication, @RequestBody PasswordChangeRequest dtoPasswords){
