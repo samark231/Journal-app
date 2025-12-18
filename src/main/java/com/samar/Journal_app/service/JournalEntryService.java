@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class JournalEntryService {
@@ -32,6 +33,10 @@ public class JournalEntryService {
     public JournalEntry getEntryById(ObjectId myId) {
         return journalEntryRepository.findById(myId).orElse(null);
     }
+    public List<JournalEntry> getAllJournals() {
+        return journalEntryRepository.findAll();
+    }
+
 
     @Transactional
     public boolean deleteEntry(String username, ObjectId journalId){
@@ -42,6 +47,10 @@ public class JournalEntryService {
         }else{
             return false;
         }
+    }
+
+    public void deleteAll(){
+        journalEntryRepository.deleteAll();
     }
 
 

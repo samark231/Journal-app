@@ -1,7 +1,10 @@
 package com.samar.Journal_app.controller;
 
+import com.samar.Journal_app.dto.EmailDto;
 import com.samar.Journal_app.dto.PasswordChangeRequest;
+import com.samar.Journal_app.dto.UpdateUserDto;
 import com.samar.Journal_app.entity.User;
+import com.samar.Journal_app.service.EmailService;
 import com.samar.Journal_app.service.UserService;
 import com.samar.Journal_app.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -31,6 +36,16 @@ public class UserController {
     public ResponseEntity<?> greeting(Authentication authentication){
         int temp = weatherService.getFeelsLike("sherghati");
         return new ResponseEntity<>("Hi "+authentication.getName()+" Today Weather feels like " + temp, HttpStatus.OK);
+    }
+    @PatchMapping("/update")
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUserDto updateUserDto, Authentication authentication){
+        String username = authentication.getName();
+        if(updateUserDto.getEmail()==null && updateUserDto.getSentimentAnalysis()==null){
+            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        }
+        Boolean didUpdate = userService.updateEmailAndSentiment(username, updateUserDto.getEmail(), updateUserDto.getSentimentAnalysis());
+        if(didUpdate) return new ResponseEntity<>(true, HttpStatus.OK);
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/change-password")
@@ -59,6 +74,20 @@ public class UserController {
             return new ResponseEntity<>(true, HttpStatus.OK);
         }else{
             return new ResponseEntity<>("password did not match", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("send-email")
+    public ResponseEntity<?> sendEmail(@RequestBody EmailDto emailDto){
+        if(emailDto.getTo()==null || emailDto.getSubject()==null|| emailDto.getBody()==null){
+            return new ResponseEntity<>("all three fields- to, subject and body are necesaary.", HttpStatus.BAD_REQUEST);
+        }else {
+            Boolean sent = emailService.sendEmail(emailDto.getTo(), emailDto.getSubject(), emailDto.getBody());
+            if(sent){
+                return new ResponseEntity<>("mail sent successfully.", HttpStatus.CREATED);
+            }else{
+                return new ResponseEntity<>("some error occured", HttpStatus.NOT_FOUND);
+            }
         }
     }
 

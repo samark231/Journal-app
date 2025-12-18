@@ -1,12 +1,16 @@
 package com.samar.Journal_app.service;
 
+import com.samar.Journal_app.dto.UpdateUserDto;
 import com.samar.Journal_app.entity.User;
+import com.samar.Journal_app.repository.JournalEntryRepository;
 import com.samar.Journal_app.repository.UserRepository;
+import com.samar.Journal_app.repository.UserRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,20 +22,22 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private UserRepositoryImpl userRepositoryImpl;
+
+    @Autowired
+    private JournalEntryRepository journalEntryRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
         public boolean saveUser(User user){
         try {
-            userRepository.save(user);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setRoles(Arrays.asList("USER"));
+            userRepository.save(user);
             return  true;
         }catch (Exception e){
             log.error("error occurred in userService while performing saveTestUser:");
-            log.warn("error occurred in userService while performing saveTestUser:");
-            log.info("error occurred in userService while performing saveTestUser:");
-            log.debug("error occurred in userService while performing saveTestUser:");
-            log.trace("error occurred in userService while performing saveTestUser:");
             return false;
         }
     }
@@ -52,8 +58,18 @@ public class UserService {
     public Long deleteJournalEntryFromUser(String username, ObjectId id){
         return userRepository.removeJournalId(username, id);
     }
+
+    @Transactional
     public void deleteUser(User user){
-        userRepository.delete(user);
+            journalEntryRepository.deleteAll(user.getJournalEntries());
+            userRepository.delete(user);
+    }
+    public Long deleteAllUsers(){
+           return userRepositoryImpl.deleteAllUsers();
+    }
+
+    public Boolean updateEmailAndSentiment(String username, String email, Boolean sentiment){
+            return userRepositoryImpl.updateEmailAndSentiment(username, email, sentiment);
     }
 
 }

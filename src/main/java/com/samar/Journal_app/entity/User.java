@@ -19,6 +19,8 @@ public class User {
     @Indexed(unique = true)
     @NonNull
     private String username;
+    private String email;
+    private Boolean sentimentAnalysis;
     @NonNull
     private String password;
     @DBRef//works as a foreign key to other collection.

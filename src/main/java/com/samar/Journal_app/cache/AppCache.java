@@ -4,6 +4,7 @@ import com.samar.Journal_app.entity.ConfigJournalEntity;
 import com.samar.Journal_app.repository.ConfigJournalAppRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
