@@ -40,7 +40,6 @@ public class UserScheduler {
         List<User> users = userRepositoryImpl.findUserForSa();
         for( User user: users){
             Sentiment mostFreqSentiment = calculateMostFrequentSentiment(user);
-
             if(mostFreqSentiment!=null) {
                 SentimentData sentiMentData = SentimentData.builder().email(user.getEmail()).sentiment("sentiment for the last 7 days: "+mostFreqSentiment.toString()).build();
                 kafkaTemplate.send("weekly-sentiments", sentiMentData.getEmail(), sentiMentData);
