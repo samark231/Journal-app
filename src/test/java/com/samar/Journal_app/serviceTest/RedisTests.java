@@ -1,11 +1,8 @@
-package com.samar.Journal_app;
+package com.samar.Journal_app.serviceTest;
 
 import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.service.RedisService;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 
 
