@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: prod
+logging:
+  level:
+    com:
+      samar:
+        Journal_app: DEBUG
