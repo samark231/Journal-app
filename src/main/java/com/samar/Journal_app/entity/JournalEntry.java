@@ -1,20 +1,24 @@
 package com.samar.Journal_app.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.samar.Journal_app.enums.Sentiment;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Document(collection = "journal_entries")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class JournalEntry {
 
     @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     @NonNull
     private String title;

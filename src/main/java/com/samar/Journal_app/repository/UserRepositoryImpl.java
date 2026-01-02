@@ -44,4 +44,13 @@ public class UserRepositoryImpl {
         return updateResult.wasAcknowledged();
 
     }
+    public List<User> getUserByUsernameOrEmail(String usernameOrEmail){
+        Query query = new Query();
+        Criteria criteriaUsername = Criteria.where("username").is(usernameOrEmail);
+        Criteria criteriaEmail = Criteria.where("email").is(usernameOrEmail);
+        query.addCriteria(new Criteria().orOperator(criteriaUsername, criteriaEmail));
+        List<User> users = mongoTemplate.find(query, User.class);
+        return users;
+
+    }
 }

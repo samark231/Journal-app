@@ -1,21 +1,26 @@
 package com.samar.Journal_app.controller;
 
+import com.samar.Journal_app.dto.UserLogInRequest;
 import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.service.UserDetailsServiceImpl;
 import com.samar.Journal_app.service.UserService;
 import com.samar.Journal_app.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.Authentication;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -47,17 +52,19 @@ public class PublicController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user){
+    public ResponseEntity<?> login(@RequestBody UserLogInRequest user){
         try{
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-            String jwt = jwtUtils.generateToken(userDetails.getUsername());
-            return new ResponseEntity<>(jwt, HttpStatus.OK);
+            Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsernameOrEmail(), user.getPassword()));
+            String jwt = jwtUtils.generateToken(authenticate.getName());
+            Map<String, Object> response = new HashMap<>();
+            User userData = userService.getUserByUsername(authenticate.getName());
+            response.put("token", jwt);
+            response.put("user", userData);
+            return ResponseEntity.ok(response);
         }catch (Exception e){
             log.error("Error occured while trying to log in: ",e);
             return new ResponseEntity<>("Bad Credentialss", HttpStatus.BAD_REQUEST);
         }
-
     }
 
 }

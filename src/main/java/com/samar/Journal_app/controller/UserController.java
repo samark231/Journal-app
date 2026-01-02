@@ -8,7 +8,9 @@ import com.samar.Journal_app.service.EmailService;
 import com.samar.Journal_app.service.UserService;
 import com.samar.Journal_app.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -68,13 +70,19 @@ public class UserController {
     public ResponseEntity<?> deleteUser(Authentication authentication, @RequestBody Map<String,String> pass){
         String username = authentication.getName();
         User currentUser = userService.getUserByUsername(username);
-//        System.out.println("password is "+pass);
         if(passwordEncoder.matches(pass.get("password"), currentUser.getPassword())){
             userService.deleteUser(currentUser);
             return new ResponseEntity<>(true, HttpStatus.OK);
         }else{
             return new ResponseEntity<>("password did not match", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("check-auth")
+    public ResponseEntity<?> checkAuthentication(Authentication authentication){
+        User user = userService.getUserByUsername(authentication.getName());
+        return ResponseEntity.ok()
+                .body(user);
     }
 
     @PostMapping("send-email")

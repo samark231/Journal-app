@@ -2,8 +2,10 @@ package com.samar.Journal_app.controller;
 
 import com.samar.Journal_app.entity.JournalEntry;
 import com.samar.Journal_app.entity.User;
+import com.samar.Journal_app.repository.JournalEntryRepositoryImpl;
 import com.samar.Journal_app.service.JournalEntryService;
 import com.samar.Journal_app.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/journal")
 public class JournalEntryController {
@@ -24,9 +27,13 @@ public class JournalEntryController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JournalEntryRepositoryImpl journalEntryRepositoryImpl;
+
 
     @GetMapping("/all-entries")
     public ResponseEntity<?> getAllEntriesOfUser( Authentication authentication){
+        System.out.println("get all journals request received");
         String username = authentication.getName();
         User user = userService.getUserByUsername(username);
         List<JournalEntry> all = user.getJournalEntries();
@@ -41,12 +48,9 @@ public class JournalEntryController {
     public ResponseEntity<?> createEntry(@RequestBody JournalEntry newEntry, Authentication authentication){
         try {
             String username = authentication.getName();
-            User user = userService.getUserByUsername(username);
-
             if(newEntry.getTitle().trim().isEmpty() || newEntry.getContent().trim().isEmpty()){
                 return new ResponseEntity<>("Need both title and description",HttpStatus.BAD_REQUEST);
             }else{
-                System.out.println("user is"+user);
                 JournalEntry entry = journalEntryService.saveNewEntry(newEntry, username);
                 return new ResponseEntity<>(entry, HttpStatus.CREATED);
             }
@@ -70,7 +74,7 @@ public class JournalEntryController {
 
     @DeleteMapping("/id/{journalId}")
     public ResponseEntity<?> DeleteJournalById(@PathVariable ObjectId journalId, Authentication authentication){
-//        System.out.println("control reached in delete controller");
+        log.info("control reached in delete controller");
         String username = authentication.getName();
         boolean isRemoved = journalEntryService.deleteEntry(username, journalId);
         if(isRemoved) return new ResponseEntity<>("journal found and removed", HttpStatus.NO_CONTENT);
@@ -79,16 +83,25 @@ public class JournalEntryController {
 
     @PutMapping("/id/{journalId}")
     public ResponseEntity<?> UpdateJournalById(@PathVariable ObjectId journalId, @RequestBody JournalEntry newEntry){
-        System.out.println("control reached in the update controller ");
+        log.info("control reached in the update controller ");
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<JournalEntry> allEntries = userService.getUserByUsername(username).getJournalEntries();
-        List<JournalEntry> collect = allEntries.stream()
-                .filter(entry->entry.getId().equals(journalId))
-                .toList();
-        if(collect.isEmpty()) return new ResponseEntity<>("journal not found", HttpStatus.NOT_FOUND);
-        JournalEntry oldEntry = collect.get(0);
-        oldEntry.setTitle(newEntry.getTitle().trim().isEmpty()? oldEntry.getTitle() : newEntry.getTitle());
-        oldEntry.setContent(newEntry.getContent()!=null && newEntry.getContent().trim().isEmpty()?oldEntry.getContent():newEntry.getContent());
-        return new ResponseEntity<>(journalEntryService.saveEntry(oldEntry), HttpStatus.OK);
+        if(isJournalBlank(newEntry)){
+            log.info("both fields empty");
+            return ResponseEntity.badRequest().body("Both title and content can not be blank");
+        }
+        Boolean updated = journalEntryRepositoryImpl.updateJournalById(journalId, newEntry);
+        if(updated){
+            log.info("entry updated");
+            newEntry.setId(journalId);
+            return ResponseEntity.ok().body(newEntry);
+        }else{
+            log.info("not updated");
+            return ResponseEntity.badRequest().body("Entry Not Updated");
+
+        }
+
+    }
+    private Boolean isJournalBlank(JournalEntry entry){
+        return entry.getTitle().isBlank()&& entry.getContent().isBlank();
     }
 }

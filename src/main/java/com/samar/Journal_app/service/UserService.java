@@ -46,7 +46,6 @@ public class UserService {
     }
 
     public User getUserByUsername(String username){
-//        System.out.println("username is "+username);
         return userRepository.findByUsername(username);
     }
     public void updatePassword(String username, String newPassword){
@@ -70,6 +69,10 @@ public class UserService {
 
     public Boolean updateEmailAndSentiment(String username, String email, Boolean sentiment){
             return userRepositoryImpl.updateEmailAndSentiment(username, email, sentiment);
+    }
+    public List<User> getUserByUsernameOrEmail(String usernameOrEmail){
+        return userRepositoryImpl.getUserByUsernameOrEmail(usernameOrEmail);
+
     }
 
 }

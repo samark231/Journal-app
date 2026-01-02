@@ -3,6 +3,7 @@ package com.samar.Journal_app.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -14,7 +15,9 @@ public class JwtUtils {
 
     // 1. We need a secret key. In prod, store this in application.properties!
     // It must be at least 32 characters long for HS256.
-    private String SECRET_KEY = "TaK+HaV^uvCHEFsEVoupW#7g=u^bWcas";
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
+
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

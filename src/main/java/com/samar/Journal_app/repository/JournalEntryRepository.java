@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface JournalEntryRepository extends MongoRepository<JournalEntry, ObjectId>{
-    public Long deleteJournalById(ObjectId id);
+public interface JournalEntryRepository extends MongoRepository<JournalEntry, String>{
+
 }
