@@ -1,6 +1,7 @@
 package com.samar.Journal_app.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.validation.constraints.Email;
@@ -39,7 +40,7 @@ public class User {
     @Builder.Default
     private Boolean sentimentAnalysis = false;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NonNull
     private String password;
 

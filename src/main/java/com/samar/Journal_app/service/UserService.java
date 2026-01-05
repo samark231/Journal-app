@@ -35,9 +35,9 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setRoles(Arrays.asList("USER"));
             userRepository.save(user);
-            return  true;
+            return true;
         }catch (Exception e){
-            log.error("error occurred in userService while performing saveTestUser:");
+            log.error("error occurred in userService while performing saveUser:", e);
             return false;
         }
     }

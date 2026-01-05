@@ -10,10 +10,25 @@ target/
 .factorypath
 .project
 .settings
-.springBeans
+.ssamark231@samark231-750XEE:~$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+samark231@samark231-750XEE:~$ docker ps -a
+CONTAINER ID   IMAGE                 COMMAND               CREATED          STATUS                        PORTS     NAMES
+3fba26a1678a   journal-app-backend   "java -jar app.jar"   55 minutes ago   Exited (130) 53 minutes ago             confident_leavitt
+249a6769acf5   hello-world           "/hello"              10 days ago      Exited (0) 10 days ago                  jovial_jang
+samark231@samark231-750XEE:~$ docker rm journal-app-backend
+Error response from daemon: No such container: journal-app-backend
+samark231@samark231-750XEE:~$ journal rm 3fba
+Command 'journal' not found, did you mean:
+  command 'xournal' from deb xournal (1:0.4.8.2016-7build1)
+Try: sudo apt install <deb name>
+samark231@samark231-750XEE:~$ docker rm 3fba
+3fba
+samark231@samark231-750XEE:~$
+pringBeans
 .sts4-cache
 *.log
-
+*.yml
 ### IntelliJ IDEA ###
 .idea
 *.iws

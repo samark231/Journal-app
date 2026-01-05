@@ -57,7 +57,6 @@ public class JournalEntryController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @GetMapping("/id/{journalId}")
@@ -93,6 +92,7 @@ public class JournalEntryController {
         if(updated){
             log.info("entry updated");
             newEntry.setId(journalId);
+//            log.info(newEntry.getDate().toString());
             return ResponseEntity.ok().body(newEntry);
         }else{
             log.info("not updated");
