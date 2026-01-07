@@ -1,6 +1,7 @@
 package com.samar.Journal_app.service;
 
 import com.samar.Journal_app.dto.UpdateUserDto;
+import com.samar.Journal_app.dto.UserSignUpDto;
 import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.repository.JournalEntryRepository;
 import com.samar.Journal_app.repository.UserRepository;
@@ -30,15 +31,21 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-        public boolean saveUser(User user){
+        public User saveUser(UserSignUpDto signUpDto){
         try {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.setRoles(Arrays.asList("USER"));
-            userRepository.save(user);
-            return true;
+            User user = User.builder()
+                    .firstName(signUpDto.getFirstName())
+                    .lastName(signUpDto.getLastName())
+                    .username(signUpDto.getUsername())
+                    .email(signUpDto.getEmail())
+                    .password(passwordEncoder.encode(signUpDto.getPassword()))
+                    .roles(Arrays.asList("USER"))
+                    .build();
+            return userRepository.save(user);
+
         }catch (Exception e){
             log.error("error occurred in userService while performing saveUser:", e);
-            return false;
+            return null;
         }
     }
     public List<User> getAllUser(){

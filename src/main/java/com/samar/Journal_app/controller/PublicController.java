@@ -3,6 +3,7 @@ package com.samar.Journal_app.controller;
 import com.samar.Journal_app.dto.UserLogInRequest;
 import com.samar.Journal_app.dto.UserSignUpDto;
 import com.samar.Journal_app.entity.User;
+import com.samar.Journal_app.response.ApiResponse;
 import com.samar.Journal_app.service.UserDetailsServiceImpl;
 import com.samar.Journal_app.service.UserService;
 import com.samar.Journal_app.utils.JwtUtils;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,22 +38,17 @@ public class PublicController {
     private final UserService userService;
 
     @GetMapping("/health-check")
-    public String healthCheck(){
-        return "OK";
+    public ResponseEntity<ApiResponse<String>> healthCheck(){
+        ApiResponse<String> response = new ApiResponse<>(true, "Health check pass", "OK");
+    "s
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> Signup(@RequestBody @Valid UserSignUpDto signUpRequest){
-        User user = User.builder()
-                .username(signUpRequest.getUsername())
-                .firstName(signUpRequest.getFirstName())
-                .lastName(signUpRequest.getLastName())
-                .email(signUpRequest.getEmail())
-                .password(signUpRequest.getPassword())
-                .build();
-        Boolean saved = userService.saveUser(user);
-        if(saved) return new ResponseEntity<>("user created", HttpStatus.CREATED);
-        return new ResponseEntity<>("error while creating user.", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponse<User>> Signup(@RequestBody @Valid UserSignUpDto signUpRequest){
+        User savedUser = userService.saveUser(signUpRequest);
+        ApiResponse<User> response = new ApiResponse<>(true, "User Created.", savedUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -66,7 +63,7 @@ public class PublicController {
             return ResponseEntity.ok(response);
         }catch (Exception e){
             log.error("Error occured while trying to log in: ",e);
-            return new ResponseEntity<>("Bad Credentialss", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Bad Credentials", HttpStatus.BAD_REQUEST);
         }
     }
 
