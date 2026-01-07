@@ -1,10 +1,14 @@
 package com.samar.Journal_app.controller;
 
 import com.samar.Journal_app.dto.UserLogInRequest;
+import com.samar.Journal_app.dto.UserSignUpDto;
 import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.service.UserDetailsServiceImpl;
 import com.samar.Journal_app.service.UserService;
 import com.samar.Journal_app.utils.JwtUtils;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,20 +28,12 @@ import java.util.Map;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("public")
 public class PublicController {
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final UserService userService;
 
     @GetMapping("/health-check")
     public String healthCheck(){
@@ -45,7 +41,14 @@ public class PublicController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> Signup(@RequestBody User user){
+    public ResponseEntity<?> Signup(@RequestBody @Valid UserSignUpDto signUpRequest){
+        User user = User.builder()
+                .username(signUpRequest.getUsername())
+                .firstName(signUpRequest.getFirstName())
+                .lastName(signUpRequest.getLastName())
+                .email(signUpRequest.getEmail())
+                .password(signUpRequest.getPassword())
+                .build();
         Boolean saved = userService.saveUser(user);
         if(saved) return new ResponseEntity<>("user created", HttpStatus.CREATED);
         return new ResponseEntity<>("error while creating user.", HttpStatus.BAD_REQUEST);
