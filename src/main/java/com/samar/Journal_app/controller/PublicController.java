@@ -40,7 +40,6 @@ public class PublicController {
     @GetMapping("/health-check")
     public ResponseEntity<ApiResponse<String>> healthCheck(){
         ApiResponse<String> response = new ApiResponse<>(true, "Health check pass", "OK");
-    "s
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
