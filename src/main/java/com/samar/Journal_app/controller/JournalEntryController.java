@@ -5,6 +5,7 @@ import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.repository.JournalEntryRepositoryImpl;
 import com.samar.Journal_app.service.JournalEntryService;
 import com.samar.Journal_app.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +19,13 @@ import java.util.*;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/journal")
 public class JournalEntryController {
 
-    @Autowired
-    private JournalEntryService journalEntryService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private JournalEntryRepositoryImpl journalEntryRepositoryImpl;
+    private final JournalEntryService journalEntryService;
+    private final UserService userService;
+    private final JournalEntryRepositoryImpl journalEntryRepositoryImpl;
 
 
     @GetMapping("/all-entries")
