@@ -33,8 +33,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("public")
 public class PublicController {
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
     private final UserService userService;
 
     @GetMapping("/health-check")
@@ -51,19 +49,9 @@ public class PublicController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLogInRequest user){
-        try{
-            Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsernameOrEmail(), user.getPassword()));
-            String jwt = jwtUtils.generateToken(authenticate.getName());
-            Map<String, Object> response = new HashMap<>();
-            User userData = userService.getUserByUsername(authenticate.getName());
-            response.put("token", jwt);
-            response.put("user", userData);
-            return ResponseEntity.ok(response);
-        }catch (Exception e){
-            log.error("Error occured while trying to log in: ",e);
-            return new ResponseEntity<>("Bad Credentials", HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ApiResponse<Map<String, Object>>> login(@RequestBody UserLogInRequest user){
+        Map<String, Object> response = userService.logInUser(user);
+        ApiResponse<Map<String, Object>> apiResponse  = new ApiResponse(true, "User logged in", response);
+        return ResponseEntity.ok(apiResponse);
     }
-
 }

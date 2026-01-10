@@ -1,35 +1,40 @@
 package com.samar.Journal_app.service;
 
+import com.samar.Journal_app.config.CustomUserDetails;
 import com.samar.Journal_app.dto.UpdateUserDto;
+import com.samar.Journal_app.dto.UserLogInRequest;
 import com.samar.Journal_app.dto.UserSignUpDto;
 import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.repository.JournalEntryRepository;
 import com.samar.Journal_app.repository.UserRepository;
 import com.samar.Journal_app.repository.UserRepositoryImpl;
+import com.samar.Journal_app.utils.JwtUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private UserRepositoryImpl userRepositoryImpl;
-
-    @Autowired
     private JournalEntryRepository journalEntryRepository;
-
-    @Autowired
     private UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
 
         public User saveUser(UserSignUpDto signUpDto){
         try {
@@ -77,9 +82,21 @@ public class UserService {
     public Boolean updateEmailAndSentiment(String username, String email, Boolean sentiment){
             return userRepositoryImpl.updateEmailAndSentiment(username, email, sentiment);
     }
-    public List<User> getUserByUsernameOrEmail(String usernameOrEmail){
-        return userRepositoryImpl.getUserByUsernameOrEmail(usernameOrEmail);
+    public Map<String , Object> logInUser(UserLogInRequest user){
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsernameOrEmail(), user.getPassword()));
+        String jwt = jwtUtils.generateToken(authenticate.getName());
+        Object principal = authenticate.getPrincipal();
 
+        // 2. Cast it to your wrapper
+        CustomUserDetails userDetails = (CustomUserDetails) principal;
+
+        // 3. Get the entity!
+        User userData = userDetails.getUserEntity();
+        Map<String, Object > response = new HashMap<>();
+        response.put("jwt", jwt);
+        response.put("userData", userData);
+        log.info("log in request reached loginUser service.");
+        return response;
     }
 
 }
