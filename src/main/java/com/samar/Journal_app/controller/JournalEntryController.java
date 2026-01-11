@@ -3,12 +3,12 @@ package com.samar.Journal_app.controller;
 import com.samar.Journal_app.entity.JournalEntry;
 import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.repository.JournalEntryRepositoryImpl;
+import com.samar.Journal_app.response.ApiResponse;
 import com.samar.Journal_app.service.JournalEntryService;
 import com.samar.Journal_app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,15 +29,18 @@ public class JournalEntryController {
 
 
     @GetMapping("/all-entries")
-    public ResponseEntity<?> getAllEntriesOfUser( Authentication authentication){
-        System.out.println("get all journals request received");
+    public ResponseEntity<ApiResponse<List<JournalEntry>>> getAllEntriesOfUser( Authentication authentication){
+        log.info("get all journals request received");
         String username = authentication.getName();
         User user = userService.getUserByUsername(username);
-        List<JournalEntry> all = user.getJournalEntries();
-        if(all!=null && (!all.isEmpty())){
-            return new ResponseEntity<>(all, HttpStatus.OK);
+        List<JournalEntry> allEntries = user.getJournalEntries();
+        ApiResponse<List<JournalEntry>> response = new ApiResponse<>(true,"", allEntries);
+        if(allEntries!=null && (!allEntries.isEmpty())){
+            response.setMessage("all entries sent successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }else{
-            return new ResponseEntity<>("No entry created yet",HttpStatus.NOT_FOUND);
+            response.setMessage("No entries found");
+            return new ResponseEntity<>(response,HttpStatus.OK);
         }
     }
 
@@ -101,4 +104,5 @@ public class JournalEntryController {
     private Boolean isJournalBlank(JournalEntry entry){
         return entry.getTitle().isBlank()&& entry.getContent().isBlank();
     }
+
 }

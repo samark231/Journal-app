@@ -83,20 +83,19 @@ public class UserService {
             return userRepositoryImpl.updateEmailAndSentiment(username, email, sentiment);
     }
     public Map<String , Object> logInUser(UserLogInRequest user){
-        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsernameOrEmail(), user.getPassword()));
-        String jwt = jwtUtils.generateToken(authenticate.getName());
-        Object principal = authenticate.getPrincipal();
-
-        // 2. Cast it to your wrapper
-        CustomUserDetails userDetails = (CustomUserDetails) principal;
-
-        // 3. Get the entity!
-        User userData = userDetails.getUserEntity();
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsernameOrEmail(), user.getPassword()));
+        String jwt = jwtUtils.generateToken(authentication.getName());
+        User userData = getUserFromAuth(authentication);
         Map<String, Object > response = new HashMap<>();
         response.put("jwt", jwt);
         response.put("userData", userData);
-        log.info("log in request reached loginUser service.");
+        log.info("log in request reached loginUser service:"+userData.toString());
         return response;
+    }
+    public User getUserFromAuth(Authentication authentication){
+            Object obj = authentication.getPrincipal();
+            CustomUserDetails userDetails = (CustomUserDetails) obj;
+            return userDetails.getUserEntity();
     }
 
 }

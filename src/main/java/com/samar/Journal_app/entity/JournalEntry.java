@@ -22,6 +22,8 @@ public class JournalEntry {
     private ObjectId id;
     @NonNull
     private String title;
+    @NonNull
+    private String username;
     private String content;
     private LocalDateTime date;
     private Sentiment sentiment;

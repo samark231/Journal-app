@@ -3,6 +3,8 @@ package com.samar.Journal_app.repository;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.samar.Journal_app.entity.JournalEntry;
+import com.samar.Journal_app.entity.User;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -12,10 +14,13 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@RequiredArgsConstructor
 @Service
 public class JournalEntryRepositoryImpl{
-    @Autowired
-    private MongoTemplate mongoTemplate;
+
+    private final MongoTemplate mongoTemplate;
     public Boolean updateJournalById(ObjectId journalId, JournalEntry newEntry){
         Query query = new Query();
         query.addCriteria(Criteria.where("id").is(journalId));
@@ -30,6 +35,12 @@ public class JournalEntryRepositoryImpl{
         query.addCriteria(Criteria.where("id").is(journalId));
         DeleteResult remove = mongoTemplate.remove(query, JournalEntry.class);
         return remove.wasAcknowledged();
+    }
+
+    public List<User> fetchAllEntriesOfUser(String username){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("username").is(username));
+
     }
 
 

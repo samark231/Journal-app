@@ -58,7 +58,9 @@ public class JournalEntryService {
             log.error("Error occured while deleting a journal",e);
             return false;
         }
-
+    }
+    public List<JournalEntry> getAllJournalEntriesOfUser(String Username){
+        return journalEntryRepository.
     }
 
     public void deleteAll(){
