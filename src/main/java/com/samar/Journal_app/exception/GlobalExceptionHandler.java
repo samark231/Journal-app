@@ -21,7 +21,11 @@ public class GlobalExceptionHandler {
         ApiResponse<?> response =  new ApiResponse<>(false, e.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
-
+    @ExceptionHandler(JournalNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleJournalNotFound(JournalNotFoundException e){
+        ApiResponse<?> response = new ApiResponse<>(false, e.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleAllErrors(Exception e){
         ApiResponse<?> response =  new ApiResponse<>(false, e.getMessage(), null);
