@@ -23,7 +23,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class User {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;

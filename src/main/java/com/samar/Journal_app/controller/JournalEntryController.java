@@ -28,6 +28,22 @@ public class JournalEntryController {
     private final JournalEntryRepositoryImpl journalEntryRepositoryImpl;
 
 
+    @PostMapping
+    public ResponseEntity<?> createEntry(@RequestBody JournalEntry newEntry, Authentication authentication){
+        try {
+            String username = authentication.getName();
+            if(newEntry.getTitle().trim().isEmpty() || newEntry.getContent().trim().isEmpty()){
+                return new ResponseEntity<>("Need both title and description",HttpStatus.BAD_REQUEST);
+            }else{
+                JournalEntry entry = journalEntryService.saveNewEntry(newEntry, username);
+                return new ResponseEntity<>(entry, HttpStatus.CREATED);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     @GetMapping("/all-entries")
     public ResponseEntity<ApiResponse<List<JournalEntry>>> getAllEntriesOfUser( Authentication authentication){
         log.info("get all journals request received");
@@ -41,21 +57,6 @@ public class JournalEntryController {
         }else{
             response.setMessage("No entries found");
             return new ResponseEntity<>(response,HttpStatus.OK);
-        }
-    }
-
-    @PostMapping
-    public ResponseEntity<?> createEntry(@RequestBody JournalEntry newEntry, Authentication authentication){
-        try {
-            String username = authentication.getName();
-            if(newEntry.getTitle().trim().isEmpty() || newEntry.getContent().trim().isEmpty()){
-                return new ResponseEntity<>("Need both title and description",HttpStatus.BAD_REQUEST);
-            }else{
-                JournalEntry entry = journalEntryService.saveNewEntry(newEntry, username);
-                return new ResponseEntity<>(entry, HttpStatus.CREATED);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -92,7 +93,6 @@ public class JournalEntryController {
         if(updated){
             log.info("entry updated");
             newEntry.setId(journalId);
-//            log.info(newEntry.getDate().toString());
             return ResponseEntity.ok().body(newEntry);
         }else{
             log.info("not updated");

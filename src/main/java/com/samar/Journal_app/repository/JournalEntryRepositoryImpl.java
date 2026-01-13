@@ -6,12 +6,10 @@ import com.samar.Journal_app.entity.JournalEntry;
 import com.samar.Journal_app.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,10 +35,10 @@ public class JournalEntryRepositoryImpl{
         return remove.wasAcknowledged();
     }
 
-    public List<User> fetchAllEntriesOfUser(String username){
+    public List<JournalEntry> fetchAllEntriesOfUser(String username){
         Query query = new Query();
         query.addCriteria(Criteria.where("username").is(username));
-
+        return mongoTemplate.find(query, JournalEntry.class);
     }
 
 

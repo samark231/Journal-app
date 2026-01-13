@@ -7,6 +7,7 @@ import com.samar.Journal_app.entity.User;
 import com.samar.Journal_app.service.EmailService;
 import com.samar.Journal_app.service.UserService;
 import com.samar.Journal_app.service.WeatherService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,20 +20,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("user")
 public class UserController {
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private WeatherService weatherService;
+    private final UserService userService;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
+    private final WeatherService weatherService;
 
     @GetMapping
     public ResponseEntity<?> greeting(Authentication authentication){

@@ -59,8 +59,8 @@ public class JournalEntryService {
             return false;
         }
     }
-    public List<JournalEntry> getAllJournalEntriesOfUser(String Username){
-        return journalEntryRepository.
+    public List<JournalEntry> getAllJournalEntriesOfUser(String username){
+        return journalEntryRepositoryImpl.fetchAllEntriesOfUser(username);
     }
 
     public void deleteAll(){

@@ -12,7 +12,6 @@ import com.samar.Journal_app.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +35,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
-        public User saveUser(UserSignUpDto signUpDto){
+    public User saveUser(UserSignUpDto signUpDto){
         try {
             User user = User.builder()
                     .firstName(signUpDto.getFirstName())
@@ -89,7 +88,7 @@ public class UserService {
         Map<String, Object > response = new HashMap<>();
         response.put("jwt", jwt);
         response.put("userData", userData);
-        log.info("log in request reached loginUser service:"+userData.toString());
+        log.info("log in request reached loginUser service:");
         return response;
     }
     public User getUserFromAuth(Authentication authentication){
