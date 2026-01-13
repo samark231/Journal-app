@@ -4,6 +4,7 @@ import com.samar.Journal_app.dto.EmailDto;
 import com.samar.Journal_app.dto.PasswordChangeRequest;
 import com.samar.Journal_app.dto.UpdateUserDto;
 import com.samar.Journal_app.entity.User;
+import com.samar.Journal_app.response.ApiResponse;
 import com.samar.Journal_app.service.EmailService;
 import com.samar.Journal_app.service.UserService;
 import com.samar.Journal_app.service.WeatherService;
@@ -30,54 +31,48 @@ public class UserController {
     private final WeatherService weatherService;
 
     @GetMapping
-    public ResponseEntity<?> greeting(Authentication authentication){
+    public ResponseEntity<ApiResponse<Integer>> greeting(Authentication authentication){
         int temp = weatherService.getFeelsLike("sherghati");
-        return new ResponseEntity<>("Hi "+authentication.getName()+" Today Weather feels like " + temp, HttpStatus.OK);
+        ApiResponse<Integer> response = new ApiResponse<>(true, "weather fetched successfully", temp);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    @PatchMapping("/update")
-    public ResponseEntity<?> updateUser(@RequestBody UpdateUserDto updateUserDto, Authentication authentication){
-        String username = authentication.getName();
-        if(updateUserDto.getEmail()==null && updateUserDto.getSentimentAnalysis()==null){
-            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-        }
-        Boolean didUpdate = userService.updateEmailAndSentiment(username, updateUserDto.getEmail(), updateUserDto.getSentimentAnalysis());
-        if(didUpdate) return new ResponseEntity<>(true, HttpStatus.OK);
-        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-    }
+//    @PatchMapping("/update")
+//    public ResponseEntity<?> updateUser(@RequestBody UpdateUserDto updateUserDto, Authentication authentication){
+//        String username = authentication.getName();
+//        if(updateUserDto.getEmail()==null && updateUserDto.getSentimentAnalysis()==null){
+//            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+//        }
+//        Boolean didUpdate = userService.updateEmailAndSentiment(username, updateUserDto.getEmail(), updateUserDto.getSentimentAnalysis());
+//        if(didUpdate) return new ResponseEntity<>(true, HttpStatus.OK);
+//        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+//    }
 
-    @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword(Authentication authentication, @RequestBody PasswordChangeRequest dtoPasswords){
-        String username = authentication.getName();
-        if(dtoPasswords.getOldPassword()==null || dtoPasswords.getNewPassword()==null) {
-            return new ResponseEntity<>("send old and new password both", HttpStatus.BAD_REQUEST);
-        }
-        User user =  userService.getUserByUsername(username);
-        if(passwordEncoder.matches(dtoPasswords.getOldPassword(), user.getPassword())){
-            userService.updatePassword(username, dtoPasswords.getNewPassword());
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>("password did not match", HttpStatus.BAD_REQUEST);
-        }
-
-    }
+//    @PutMapping("/change-password")
+//    public ResponseEntity<?> changePassword(Authentication authentication, @RequestBody PasswordChangeRequest dtoPasswords){
+//        String username = authentication.getName();
+//        if(dtoPasswords.getOldPassword()==null || dtoPasswords.getNewPassword()==null) {
+//            return new ResponseEntity<>("send old and new password both", HttpStatus.BAD_REQUEST);
+//        }
+//        User user =  userService.getUserByUsername(username);
+//        if(passwordEncoder.matches(dtoPasswords.getOldPassword(), user.getPassword())){
+//            userService.updatePassword(username, dtoPasswords.getNewPassword());
+//            return new ResponseEntity<>(true, HttpStatus.OK);
+//        }else{
+//            return new ResponseEntity<>("password did not match", HttpStatus.BAD_REQUEST);
+//        }
+//
+//    }
 
     @DeleteMapping("delete-user")
-    public ResponseEntity<?> deleteUser(Authentication authentication, @RequestBody Map<String,String> pass){
-        String username = authentication.getName();
-        User currentUser = userService.getUserByUsername(username);
-        if(passwordEncoder.matches(pass.get("password"), currentUser.getPassword())){
-            userService.deleteUser(currentUser);
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>("password did not match", HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ApiResponse<Boolean>> deleteUser(Authentication authentication, @RequestBody Map<String,String> pass){
+        userService.deleteUser(authentication.getName(), pass);
+        return new ResponseEntity<>(new ApiResponse<>(true, "user deleted successfully",true), HttpStatus.OK);
     }
 
     @GetMapping("check-auth")
-    public ResponseEntity<?> checkAuthentication(Authentication authentication){
+    public ResponseEntity<ApiResponse<User>> checkAuthentication(Authentication authentication){
         User user = userService.getUserByUsername(authentication.getName());
-        return ResponseEntity.ok()
-                .body(user);
+        return new ResponseEntity<>(new ApiResponse<>(true, "user authenticated successfully", user), HttpStatus.OK);
     }
 
     @PostMapping("send-email")

@@ -1,7 +1,6 @@
 package com.samar.Journal_app.service;
 
 import com.samar.Journal_app.config.CustomUserDetails;
-import com.samar.Journal_app.dto.UpdateUserDto;
 import com.samar.Journal_app.dto.UserLogInRequest;
 import com.samar.Journal_app.dto.UserSignUpDto;
 import com.samar.Journal_app.entity.User;
@@ -11,8 +10,10 @@ import com.samar.Journal_app.repository.UserRepositoryImpl;
 import com.samar.Journal_app.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.protocol.types.Field;
 import org.bson.types.ObjectId;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,29 +29,23 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    private PasswordEncoder passwordEncoder;
-    private UserRepositoryImpl userRepositoryImpl;
-    private JournalEntryRepository journalEntryRepository;
-    private UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepositoryImpl userRepositoryImpl;
+    private final JournalEntryRepository journalEntryRepository;
+    private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
     public User saveUser(UserSignUpDto signUpDto){
-        try {
-            User user = User.builder()
-                    .firstName(signUpDto.getFirstName())
-                    .lastName(signUpDto.getLastName())
-                    .username(signUpDto.getUsername())
-                    .email(signUpDto.getEmail())
-                    .password(passwordEncoder.encode(signUpDto.getPassword()))
-                    .roles(Arrays.asList("USER"))
-                    .build();
-            return userRepository.save(user);
-
-        }catch (Exception e){
-            log.error("error occurred in userService while performing saveUser:", e);
-            return null;
-        }
+        User user = User.builder()
+                .firstName(signUpDto.getFirstName())
+                .lastName(signUpDto.getLastName())
+                .username(signUpDto.getUsername())
+                .email(signUpDto.getEmail())
+                .password(passwordEncoder.encode(signUpDto.getPassword()))
+                .roles(Arrays.asList("USER"))
+                .build();
+        return userRepository.save(user);
     }
     public List<User> getAllUser(){
         return userRepository.findAll();
@@ -70,9 +65,14 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(User user){
-            journalEntryRepository.deleteAll(user.getJournalEntries());
-            userRepository.delete(user);
+    public void deleteUser(String username , Map<String, String> pass){
+            User currentUser = getUserByUsername(username);
+            if(passwordEncoder.matches(pass.get("password"),currentUser.getPassword())){
+                journalEntryRepository.deleteAll(currentUser.getJournalEntries());
+                userRepository.delete(currentUser);
+            }else{
+                throw new BadCredentialsException("Password did not match, try again");
+            }
     }
     public Long deleteAllUsers(){
            return userRepositoryImpl.deleteAllUsers();

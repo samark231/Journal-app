@@ -1,5 +1,7 @@
 package com.samar.Journal_app.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class JournalEntryResponse {
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     private String title;
     private String content;
