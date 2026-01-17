@@ -2,14 +2,14 @@ package com.samar.Journal_app.repository;
 
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.samar.Journal_app.dto.UserDto;
 import com.samar.Journal_app.entity.User;
-import org.apache.catalina.LifecycleState;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,14 +34,19 @@ public class UserRepositoryImpl {
         DeleteResult remove = mongoTemplate.remove(query, User.class);
         return remove.getDeletedCount();
     }
-    public Boolean updateEmailAndSentiment(String username, String email, Boolean sentimentAnalysis){
+    public User updateUserDetails(String username, UserDto userDetails){
         Query query = new Query();
         query.addCriteria(Criteria.where("username").is(username));
         Update update = new Update();
-        if (email!=null) update.set("email", email);
-        if (sentimentAnalysis!=null) update.set("sentimentAnalysis", sentimentAnalysis);
-        UpdateResult updateResult = mongoTemplate.updateFirst(query, update, User.class);
-        return updateResult.wasAcknowledged();
+        if (userDetails.getEmail()!=null) update.set("email", userDetails.getEmail());
+        if (userDetails.getFirstName()!=null) update.set("firstName", userDetails.getFirstName());
+        if (userDetails.getLastName()!=null) update.set("lastName", userDetails.getLastName());
+        if (userDetails.getDob()!=null) update.set("dob", userDetails.getDob());
+        if (userDetails.getGender()!=null) update.set("gender", userDetails.getGender());
+        if (userDetails.getSentimentAnalysis()!=null) update.set("sentimentAnalysis", userDetails.getSentimentAnalysis());
+        FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+        return mongoTemplate.findAndModify(query, update, options, User.class);
+
 
     }
     public List<User> getUserByUsernameOrEmail(String usernameOrEmail){

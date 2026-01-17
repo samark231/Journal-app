@@ -1,16 +1,18 @@
 package com.samar.Journal_app.service;
 
 import com.samar.Journal_app.config.CustomUserDetails;
+import com.samar.Journal_app.dto.PasswordChangeRequest;
+import com.samar.Journal_app.dto.UserDto;
 import com.samar.Journal_app.dto.UserLogInRequest;
 import com.samar.Journal_app.dto.UserSignUpDto;
 import com.samar.Journal_app.entity.User;
+import com.samar.Journal_app.exception.UserNotUpdated;
 import com.samar.Journal_app.repository.JournalEntryRepository;
 import com.samar.Journal_app.repository.UserRepository;
 import com.samar.Journal_app.repository.UserRepositoryImpl;
 import com.samar.Journal_app.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.protocol.types.Field;
 import org.bson.types.ObjectId;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -50,12 +52,17 @@ public class UserService {
     public List<User> getAllUser(){
         return userRepository.findAll();
     }
-
     public User getUserByUsername(String username){
         return userRepository.findByUsername(username);
     }
-    public void updatePassword(String username, String newPassword){
-        userRepository.updatePassword(username, passwordEncoder.encode(newPassword));
+    public void updatePassword(String username, PasswordChangeRequest passwordDto){
+        String encodedPassword = userRepository.findByUsername(username).getPassword();
+        if(passwordEncoder.matches(passwordDto.getOldPassword(),encodedPassword)){
+            userRepository.updatePassword(username, passwordEncoder.encode(passwordDto.getNewPassword()));
+        }else{
+            throw new BadCredentialsException("Wrong password. Try again...");
+        }
+
     }
     public void addJournalEntryToUser(String username, ObjectId id){
         userRepository.addJournalId(username, id);
@@ -63,7 +70,20 @@ public class UserService {
     public Long deleteJournalEntryFromUser(String username, ObjectId id){
         return userRepository.removeJournalId(username, id);
     }
-
+    public UserDto updateUserDetails(String username, UserDto oldUserDetails){
+        User updatedUser = userRepositoryImpl.updateUserDetails(username, oldUserDetails);
+        if(updatedUser!=null){
+            return UserDto.builder()
+                    .firstName(updatedUser.getFirstName())
+                    .lastName(updatedUser.getLastName())
+                    .email(updatedUser.getEmail())
+                    .dob(updatedUser.getDob())
+                    .gender(updatedUser.getGender())
+                    .build();
+        }else{
+            throw new UserNotUpdated("Could not update user. Check details again or try after some time.");
+        }
+    }
     @Transactional
     public void deleteUser(String username , Map<String, String> pass){
             User currentUser = getUserByUsername(username);
@@ -78,9 +98,6 @@ public class UserService {
            return userRepositoryImpl.deleteAllUsers();
     }
 
-    public Boolean updateEmailAndSentiment(String username, String email, Boolean sentiment){
-            return userRepositoryImpl.updateEmailAndSentiment(username, email, sentiment);
-    }
     public Map<String , Object> logInUser(UserLogInRequest user){
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsernameOrEmail(), user.getPassword()));
         String jwt = jwtUtils.generateToken(authentication.getName());

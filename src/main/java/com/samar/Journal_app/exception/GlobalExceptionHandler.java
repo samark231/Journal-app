@@ -26,6 +26,11 @@ public class GlobalExceptionHandler {
         ApiResponse<?> response = new ApiResponse<>(false, e.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(UserNotUpdated.class)
+    public ResponseEntity<ApiResponse<?>> handleUserNotUpdated(UserNotUpdated e){
+        ApiResponse<?> response = new ApiResponse<>(false, "could not update user", e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleAllErrors(Exception e){
         ApiResponse<?> response =  new ApiResponse<>(false, e.getMessage(), null);

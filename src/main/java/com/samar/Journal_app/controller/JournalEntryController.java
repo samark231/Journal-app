@@ -1,6 +1,7 @@
 package com.samar.Journal_app.controller;
 
 import com.samar.Journal_app.dto.CreateJournalEntryRequest;
+import com.samar.Journal_app.dto.HeatMapDto;
 import com.samar.Journal_app.dto.JournalEntryResponse;
 import com.samar.Journal_app.entity.JournalEntry;
 import com.samar.Journal_app.repository.JournalEntryRepositoryImpl;
@@ -61,6 +62,11 @@ public class JournalEntryController {
         JournalEntryResponse journalEntryResponse = journalEntryService.updateJournalById(journalId, authentication.getName(), newEntry);
         return  new ResponseEntity<>(new ApiResponse<>(true, "Entry updated successfully", journalEntryResponse), HttpStatus.OK);
 
+    }
+    @GetMapping("/heat-map")
+    public ResponseEntity<ApiResponse<List<HeatMapDto>>> fetchHeatMapData(Authentication authentication){
+        List<HeatMapDto> heatMapDtos = journalEntryService.fetchHeatMapData(authentication.getName());
+        return new ResponseEntity<>(new ApiResponse<>(true, "HeatMap data fetched successfully",heatMapDtos ), HttpStatus.OK);
     }
 
 }

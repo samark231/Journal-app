@@ -2,11 +2,14 @@ package com.samar.Journal_app.repository;
 
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.samar.Journal_app.dto.HeatMapDto;
 import com.samar.Journal_app.entity.JournalEntry;
 import com.samar.Journal_app.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
@@ -52,5 +55,19 @@ public class JournalEntryRepositoryImpl{
         update.set("date", LocalDateTime.now());
         UpdateResult updateResult = mongoTemplate.updateFirst(query, update, JournalEntry.class);
         return updateResult.getMatchedCount()>0;
+    }
+    public List<HeatMapDto> getJournalCountByDate(String username){
+        Aggregation pipeline =  Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("username").is(username)),
+                Aggregation.project()
+                        .and("date")
+                        .dateAsFormattedString("%Y-%m-%d")
+                        .as("onlyDate"),
+                Aggregation.group("onlyDate").count().as("count")
+        );
+        AggregationResults<HeatMapDto> aggregate = mongoTemplate.aggregate(pipeline, JournalEntry.class, HeatMapDto.class);
+        List<HeatMapDto> results = aggregate.getMappedResults();
+        System.out.println(results);
+        return results;
     }
 }

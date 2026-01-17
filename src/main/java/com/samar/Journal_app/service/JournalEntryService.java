@@ -1,6 +1,7 @@
 package com.samar.Journal_app.service;
 
 import com.samar.Journal_app.dto.CreateJournalEntryRequest;
+import com.samar.Journal_app.dto.HeatMapDto;
 import com.samar.Journal_app.dto.JournalEntryResponse;
 import com.samar.Journal_app.entity.JournalEntry;
 import com.samar.Journal_app.exception.JournalNotFoundException;
@@ -101,6 +102,10 @@ public class JournalEntryService {
 
     public void deleteAll(){
         journalEntryRepository.deleteAll();
+    }
+    public List<HeatMapDto> fetchHeatMapData(String username){
+        return journalEntryRepositoryImpl.getJournalCountByDate(username);
+
     }
 
 

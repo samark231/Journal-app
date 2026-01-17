@@ -12,7 +12,7 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     @Query("{'username':?0}")
     @Update("{$set:{'password':?1}}")
-    public Long updatePassword(String username, String newPassword);
+    public void updatePassword(String username, String newPassword);
 
     @Query("{'username':?0}")
     @Update("{'$push':{'journalEntries':?1}}")
