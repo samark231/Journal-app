@@ -62,7 +62,7 @@ public class SpringSecurity {
         }
 
         // 3. Allow specific HTTP methods
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
         // 4. Allow headers (e.g., Authorization for JWT)
         configuration.setAllowedHeaders(List.of("*"));

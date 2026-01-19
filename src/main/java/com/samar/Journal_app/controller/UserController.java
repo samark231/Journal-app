@@ -10,6 +10,7 @@ import com.samar.Journal_app.service.UserService;
 import com.samar.Journal_app.service.WeatherService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("user")
@@ -35,6 +37,7 @@ public class UserController {
     }
     @PatchMapping("/update")
     public ResponseEntity<ApiResponse<UserDto>> updateUser(@RequestBody UserDto userDto, Authentication authentication){
+        log.info("A request has reached updateUser controller.");
         UserDto updatedUser = userService.updateUserDetails(authentication.getName(), userDto);
         ApiResponse<UserDto> userDtoApiResponse = new ApiResponse<>(true,  "user updated successfully", updatedUser);
         return new ResponseEntity<>(userDtoApiResponse, HttpStatus.OK);
