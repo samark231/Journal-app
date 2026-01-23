@@ -56,7 +56,7 @@ public class SpringSecurity {
         // 2. Allow your specific frontend origin
         String frontEndUrl = System.getenv("FRONTEND_URL");
         if(frontEndUrl!=null){
-            configuration.setAllowedOrigins(List.of("http://localhost:5173", frontEndUrl));
+            configuration.setAllowedOrigins(List.of("http://localhost:5173","https://slate-of-mind.samarkrishna.com", frontEndUrl));
         }else{
             configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         }
